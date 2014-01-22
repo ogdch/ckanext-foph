@@ -59,6 +59,13 @@ class FOPHHarvester(HarvesterBase):
     }
     LANG_CODES = ['de', 'fr', 'it', 'en']
 
+    GROUPS = {
+        u'de': [u'Gesundheit'],
+        u'fr': [u'Santé'],
+        u'it': [u'Salute'],
+        u'en': [u'Health']
+    }
+
     config = {
         'user': u'harvest'
     }
@@ -102,7 +109,7 @@ class FOPHHarvester(HarvesterBase):
         '''
         try:
             resources = []
-            prefix = self.DEPARTMENT_BASE + u'/' + dataset_id + u'/'
+            prefix = self.DEPARTMENT_BASE + dataset_id + u'/'
             bucket_list = self._get_s3_bucket().list(prefix=prefix)
             for file in bucket_list:
                 if file.key != prefix:
@@ -150,7 +157,7 @@ class FOPHHarvester(HarvesterBase):
             log.debug(de_rows)
             log.debug(other_rows)
 
-            keys = ['title', 'notes', 'author', 'maintainer', 'licence', 'groups']
+            keys = ['title', 'notes', 'author', 'maintainer', 'licence']
 
             for row_idx in range(len(de_rows)):
                 for key in keys:
@@ -178,6 +185,15 @@ class FOPHHarvester(HarvesterBase):
                             'lang_code': lang,
                             'term': self.ORGANIZATION['de'][field],
                             'term_translation': org[field]
+                        })
+
+            for lang, groups in self.GROUPS.iteritems():
+                if lang != u'de':
+                    for idx, group in enumerate(self.GROUPS[lang]):
+                        translations.append({
+                            'lang_code': lang,
+                            'term': self.GROUPS[u'de'][idx],
+                            'term_translation': group
                         })
 
             return translations
@@ -221,6 +237,22 @@ class FOPHHarvester(HarvesterBase):
             'form_config_interface': 'Text'
         }
 
+
+    def _find_or_create_groups(self, context):
+        group_name = self.GROUPS['de'][0]
+        data_dict = {
+            'id': group_name,
+            'name': munge_title_to_name(group_name),
+            'title': group_name
+            }
+        try:
+            group = get_action('group_show')(context, data_dict)
+        except:
+            group = get_action('group_create')(context, data_dict)
+            log.info('created the group ' + group['id'])
+        group_ids = []
+        group_ids.append(group['id'])
+        return group_ids
 
     def gather_stage(self, harvest_job):
         log.debug('In FOPHHarvester gather_stage')
@@ -307,17 +339,7 @@ class FOPHHarvester(HarvesterBase):
             }
 
             # Find or create group the dataset should get assigned to
-            for group_name in package_dict['groups']:
-                try:
-                    data_dict = {
-                        'id': group_name,
-                        'name': munge_title_to_name(group_name),
-                        'title': group_name
-                    }
-                    group_id = get_action('group_show')(context, data_dict)['id']
-                except:
-                    group = get_action('group_create')(context, data_dict)
-                    log.info('created the group ' + group['id'])
+            package_dict['groups'] = self._find_or_create_groups(context)
 
             # Find or create the organization the dataset should get assigned to.
             data_dict = {
