@@ -116,7 +116,8 @@ class FOPHHarvester(HarvesterBase):
                     resources.append({
                         'url': self.FILES_BASE_URL + '/' + file.key,
                         'name': file.key.replace(prefix, u''),
-                        'format': self._guess_format(file.key)
+                        'format': self._guess_format(file.key),
+                        'size': self._get_s3_bucket().lookup(file.key).size
                     })
             return resources
         except Exception, e:
@@ -279,6 +280,7 @@ class FOPHHarvester(HarvesterBase):
                 }
 
                 metadata['resources'] = self._generate_resources_dict_array(row[u'id'])
+                metadata['resources'][0]['version'] = row[u'version']
                 log.debug(metadata['resources'])
 
                 # Adding term translations
