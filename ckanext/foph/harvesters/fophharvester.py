@@ -30,31 +30,37 @@ class FOPHHarvester(HarvesterBase):
     '''
 
     BUCKET_NAME = config.get('ckanext.foph.s3_bucket')
-    METADATA_FILE_NAME = u'OGD@Bund Metadaten FOPH.xlsx'
-    DEPARTMENT_BASE = u'ch.bag.'
+    METADATA_FILE_NAME = u'OGD_Metadaten_BAG.xlsx'
+    DEPARTMENT_BASE = u'ch.bag/'
     FILES_BASE_URL = 'http://' + BUCKET_NAME + '.s3.amazonaws.com'
 
     # Define the keys in the CKAN .ini file
     AWS_ACCESS_KEY = config.get('ckanext.foph.s3_key')
     AWS_SECRET_KEY = config.get('ckanext.foph.s3_token')
 
+    FOLDERS = {
+        'pri': u'Praemien/',
+        'kzp': u'Spitalstatistikdateien/kzp/',
+        'qip': u'Spitalstatistikdateien/qip/'
+    }
+
     ORGANIZATION = {
         'de': {
             'name': u'Bundesamt für Gesundheit BAG',
-            'description': u'Gesundheit liegt uns am Herzen.',
+            'description': u'Das Bundesamt für Gesundheit (BAG) ist Teil des Eidgenössischen Departements des Innern. Es ist - zusammen mit den Kantonen - verantwortlich für die Gesundheit der Schweizer Bevölkerung und für die Entwicklung der nationalen Gesundheitspolitik. Zudem vertritt das BAG als nationale Behörde die Schweiz in Gesundheitsbelangen in internationalen Organisationen und gegenüber anderen Staaten.',
             'website': u'http://www.bar.admin.ch/'
         },
         'fr': {
             'name': u'Office fédéral de la santé publique OFSP',
-            'description': u'La santé nous tient à coeur.'
+            'description': u"L'Office fédéral de la santé publique (OFSP) fait partie du Département fédéral de l'intérieur. De concert avec les cantons, il assume la responsabilité des domaines touchant à la santé publique ainsi que la mise en œuvre de la politique sanitaire. Autorité à vocation nationale, il représente les intérêts sanitaires de la Suisse dans les organisations internationales et auprès d'autres Etats."
         },
         'it': {
             'name': u'Ufficio federale della sanità pubblica UFSP',
-            'description': u'La salute ci sta a cuore.'
+            'description': u"L'Ufficio federale della sanità pubblica (UFSP) è incorporato nel Dipartimento federale dell'interno. Unitamente ai Cantoni, è responsabile della salute della popolazione svizzera e dello sviluppo della politica nazionale in materia di salute. In qualità di autorità nazionale rappresenta inoltre gli interessi della Svizzera in materia di sanità in seno a organizzazioni internazionali e nei rapporti con altri Stati."
         },
         'en': {
             'name': u'Federal Office of Public Health FOPH',
-            'description': u'Taking health to heart.'
+            'description': u"The Federal Office of Public Health (FOPH) is part of the Federal Department of Home Affairs. Along with the cantons it is responsible for public health in Switzerland and for developing national health policy. As the national health authority, the FOPH also represents Switzerland's interests in the field of health in international organisations and with respect to other countries."
         }
     }
     LANG_CODES = ['de', 'fr', 'it', 'en']
@@ -109,7 +115,9 @@ class FOPHHarvester(HarvesterBase):
         '''
         try:
             resources = []
-            prefix = self.DEPARTMENT_BASE + dataset_id + u'/'
+            prefix = self.DEPARTMENT_BASE + self.FOLDERS[dataset_id[:3]]
+            if dataset_id != u'prim':
+                prefix = prefix + u'20' + dataset_id[3:] + u'/'
             bucket_list = self._get_s3_bucket().list(prefix=prefix)
             for file in bucket_list:
                 if file.key != prefix:
@@ -125,21 +133,20 @@ class FOPHHarvester(HarvesterBase):
             raise
 
 
-    def _get_row_dict_array(self, lang_index, file_path):
+    def _get_col_dict_array(self, lang_index, file_path):
         '''
+        Returns a list of dicts, one for each dataset (= each sheet in the metadata file).
         '''
         try:
             metadata_workbook = xlrd.open_workbook(file_path)
-            worksheet = metadata_workbook.sheet_by_index(lang_index)
+            cols = []
 
-            # Extract the row headers
-            header_row = worksheet.row_values(6)
-            rows = []
-            for row_num in range(worksheet.nrows):
-                # Data columns begin at row count 7 (8 in Excel)
-                if row_num >= 7:
-                    rows.append(dict(zip(header_row, worksheet.row_values(row_num))))
-            return rows
+            for sheet_name in metadata_workbook.sheet_names():
+                worksheet = metadata_workbook.sheet_by_name(sheet_name)
+                attributes = worksheet.col_values(0, 2, 14)
+                # Lang_index + 1 is used to get the column number, because col 0 contains the attributes
+                cols.append(dict(zip(attributes, worksheet.col_values(lang_index + 1, 2, 14))))
+            return cols
 
         except Exception, e:
             log.exception(e)
@@ -152,24 +159,24 @@ class FOPHHarvester(HarvesterBase):
         try:
             translations = []
 
-            de_rows = self._get_row_dict_array(0, file_path)
-            other_rows = self._get_row_dict_array(lang_index, file_path)
+            de_cols = self._get_col_dict_array(0, file_path)
+            other_cols = self._get_col_dict_array(lang_index, file_path)
 
-            log.debug(de_rows)
-            log.debug(other_rows)
+            log.debug(de_cols)
+            log.debug(other_cols)
 
-            keys = ['title', 'notes', 'author', 'maintainer', 'licence']
+            keys = ['title', 'notes', 'author', 'maintainer', 'license_id']
 
-            for row_idx in range(len(de_rows)):
+            for col_idx in range(len(de_cols)):
                 for key in keys:
                     translations.append({
                         'lang_code': self.LANG_CODES[lang_index],
-                        'term': de_rows[row_idx][key],
-                        'term_translation': other_rows[row_idx][key]
+                        'term': de_cols[col_idx][key],
+                        'term_translation': other_cols[col_idx][key]
                     })
 
-                de_tags = de_rows[row_idx]['tags'].split(u', ')
-                other_tags = other_rows[row_idx]['tags'].split(u', ')
+                de_tags = de_cols[col_idx]['tags'].split(u', ')
+                other_tags = other_cols[col_idx]['tags'].split(u', ')
 
                 if len(de_tags) == len(other_tags):
                     for tag_idx in range(len(de_tags)):
@@ -261,26 +268,26 @@ class FOPHHarvester(HarvesterBase):
             file_path = self._fetch_metadata_file()
             ids = []
 
-            de_rows = self._get_row_dict_array(0, file_path)
-            for row in de_rows:
+            de_cols = self._get_col_dict_array(0, file_path)
+            for col in de_cols:
                 # Construct the metadata dict for the dataset on CKAN
                 metadata = {
-                    'datasetID': row[u'id'],
-                    'title': row[u'title'],
-                    'url': row[u'url'],
-                    'notes': row[u'notes'],
-                    'author': row[u'author'],
-                    'maintainer': row[u'maintainer'],
-                    'maintainer_email': row[u'maintainer_email'],
-                    'license_id': row[u'licence'],
-                    'license_url': row[u'licence_url'],
+                    'datasetID': col[u'id'],
+                    'title': col[u'title'],
+                    'url': col[u'url'],
+                    'notes': col[u'notes'],
+                    'author': col[u'author'],
+                    'author_email': col[u'author_email'],
+                    'maintainer': col[u'maintainer'],
+                    'maintainer_email': col[u'maintainer_email'],
+                    'license_id': col[u'license_id'],
+                    'version': col[u'version'],
                     'translations': [],
-                    'tags': row[u'tags'].split(u', '),
-                    'groups': [row[u'groups']]
+                    'tags': col[u'tags'].split(u', ')
                 }
 
-                metadata['resources'] = self._generate_resources_dict_array(row[u'id'])
-                metadata['resources'][0]['version'] = row[u'version']
+                metadata['resources'] = self._generate_resources_dict_array(col[u'id'])
+                metadata['resources'][0]['version'] = col[u'version']
                 log.debug(metadata['resources'])
 
                 # Adding term translations
@@ -291,15 +298,15 @@ class FOPHHarvester(HarvesterBase):
                 log.debug(metadata['translations'])
 
                 obj = HarvestObject(
-                    guid = self._create_uuid(row[u'id']),
+                    guid = self._create_uuid(col[u'id']),
                     job = harvest_job,
                     content = json.dumps(metadata)
                 )
                 obj.save()
-                log.debug('adding ' + row[u'id'] + ' to the queue')
+                log.debug('adding ' + col[u'id'] + ' to the queue')
                 ids.append(obj.id)
 
-                log.debug(de_rows)
+                log.debug(de_cols)
         except Exception, e:
             return False
         return ids
