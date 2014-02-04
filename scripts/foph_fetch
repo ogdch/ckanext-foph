@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DAEMON=/home/www-data/pyenv/bin/python
-ARGS="/home/www-data/pyenv/bin/paster --plugin=ckanext-sfa harvester fetch_consumer --config=/home/www-data/production.ini"
-PIDFILE=/home/www-data/pid/sfa_fetch.pid
+ARGS="/home/www-data/pyenv/bin/paster --plugin=ckanext-foph harvester fetch_consumer --config=/home/www-data/production.ini"
+PIDFILE=/home/www-data/pid/foph_fetch.pid
 
 function start {
     /sbin/start-stop-daemon --start --pidfile $PIDFILE \

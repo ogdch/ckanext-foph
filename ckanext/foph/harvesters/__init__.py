@@ -1,1 +1,1 @@
-from ckanext.sfa.harvesters.sfaharvester import SFAHarvester
+from ckanext.foph.harvesters.fophharvester import FOPHHarvester
