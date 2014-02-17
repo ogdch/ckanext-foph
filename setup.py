@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
-import sys, os
+import sys
+import os
 
 version = '0.0'
 
@@ -9,7 +10,8 @@ setup(
     description="CKAN extension for the FOPH for the OGD portal of Switzerland",
     long_description="""\
     """,
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[],
     keywords='',
     author='Liip AG',
     author_email='ogd@liip.ch',
@@ -22,7 +24,7 @@ setup(
     install_requires=[
         # -*- Extra requirements: -*-
     ],
-    entry_points=\
+    entry_points=
     """
     [ckan.plugins]
     foph=ckanext.foph.plugins:FophHarvest
