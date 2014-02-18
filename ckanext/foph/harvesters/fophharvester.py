@@ -49,48 +49,48 @@ class FOPHHarvester(HarvesterBase):
             'name': u'Bundesamt für Gesundheit BAG',
             'description':
             u'Das Bundesamt für Gesundheit (BAG) ist Teil des Eidgenössischen '
-            + 'Departements des Innern. Es ist - zusammen mit den Kantonen '
-            + '- verantwortlich für die Gesundheit der Schweizer '
-            + 'Bevölkerung und für die Entwicklung der nationalen '
-            + 'Gesundheitspolitik. Zudem vertritt das BAG als nationale '
-            + 'Behörde die Schweiz in Gesundheitsbelangen in '
-            + 'internationalen Organisationen und gegenüber anderen '
-            + 'Staaten.',
+            + u'Departements des Innern. Es ist - zusammen mit den Kantonen '
+            + u'- verantwortlich für die Gesundheit der Schweizer '
+            + u'Bevölkerung und für die Entwicklung der nationalen '
+            + u'Gesundheitspolitik. Zudem vertritt das BAG als nationale '
+            + u'Behörde die Schweiz in Gesundheitsbelangen in '
+            + u'internationalen Organisationen und gegenüber anderen '
+            + u'Staaten.',
             'website': u'http://www.bar.admin.ch/'
         },
         'fr': {
             'name': u'Office fédéral de la santé publique OFSP',
             'description':
             u"L'Office fédéral de la santé publique (OFSP) fait partie du "
-            + "Département fédéral de l'intérieur. De concert avec les "
-            + "cantons, il assume la responsabilité des domaines touchant "
-            + "à la santé publique ainsi que la mise en œuvre de la "
-            + "politique sanitaire. Autorité à vocation nationale, il "
-            + "représente les intérêts sanitaires de la Suisse dans les "
-            + "organisations internationales et auprès d'autres Etats."
+            + u"Département fédéral de l'intérieur. De concert avec les "
+            + u"cantons, il assume la responsabilité des domaines touchant "
+            + u"à la santé publique ainsi que la mise en œuvre de la "
+            + u"politique sanitaire. Autorité à vocation nationale, il "
+            + u"représente les intérêts sanitaires de la Suisse dans les "
+            + u"organisations internationales et auprès d'autres Etats."
         },
         'it': {
             'name': u'Ufficio federale della sanità pubblica UFSP',
             'description':
             u"L'Ufficio federale della sanità pubblica (UFSP) è incorporato "
-            + "nel Dipartimento federale dell'interno. Unitamente ai "
-            + "Cantoni, è responsabile della salute della popolazione "
-            + "svizzera e dello sviluppo della politica nazionale in "
-            + "materia di salute. In qualità di autorità nazionale "
-            + "rappresenta inoltre gli interessi della Svizzera in "
-            + "materia di sanità in seno a organizzazioni internazionali "
-            + "e nei rapporti con altri Stati."
+            + u"nel Dipartimento federale dell'interno. Unitamente ai "
+            + u"Cantoni, è responsabile della salute della popolazione "
+            + u"svizzera e dello sviluppo della politica nazionale in "
+            + u"materia di salute. In qualità di autorità nazionale "
+            + u"rappresenta inoltre gli interessi della Svizzera in "
+            + u"materia di sanità in seno a organizzazioni internazionali "
+            + u"e nei rapporti con altri Stati."
         },
         'en': {
             'name': u'Federal Office of Public Health FOPH',
             'description':
             u"The Federal Office of Public Health (FOPH) is part of the "
-            + "Federal Department of Home Affairs. Along with the cantons "
-            + "it is responsible for public health in Switzerland and for "
-            + "developing national health policy. As the national health "
-            + "authority, the FOPH also represents Switzerland's "
-            + "interests in the field of health in international "
-            + "organisations and with respect to other countries."
+            + u"Federal Department of Home Affairs. Along with the cantons "
+            + u"it is responsible for public health in Switzerland and for "
+            + u"developing national health policy. As the national health "
+            + u"authority, the FOPH also represents Switzerland's "
+            + u"interests in the field of health in international "
+            + u"organisations and with respect to other countries."
         }
     }
     LANG_CODES = ['de', 'fr', 'it', 'en']
@@ -316,7 +316,7 @@ class FOPHHarvester(HarvesterBase):
                     'author_email': col[u'author_email'],
                     'maintainer': col[u'maintainer'],
                     'maintainer_email': col[u'maintainer_email'],
-                    'license_id': col[u'license_id'],
+                    'license_id': col[u'license_id'].lower(),
                     'version': col[u'version'],
                     'translations': [],
                     'tags': col[u'tags'].split(u', ')
