@@ -319,8 +319,11 @@ class FOPHHarvester(HarvesterBase):
                     'license_id': col[u'license_id'].lower(),
                     'version': col[u'version'],
                     'translations': [],
-                    'tags': col[u'tags'].split(u', ')
+                    'tags': []
                 }
+                tags = col[u'tags'].split(u', ')
+                tags = [munge_tag(tag) for tag in tags]
+                metadata['tags'] = tags
 
                 metadata['resources'] = self._generate_resources_dict_array(
                     col[u'id'])
