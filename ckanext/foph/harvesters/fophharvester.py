@@ -48,7 +48,7 @@ class FOPHHarvester(HarvesterBase):
         'de': {
             'name': u'Bundesamt für Gesundheit BAG',
             'description':
-            u'Das Bundesamt für Gesundheit (BAG) ist Teil des Eidgenössischen '
+            u'Teil des Eidgenössischen '
             + u'Departements des Innern. Es ist - zusammen mit den Kantonen '
             + u'- verantwortlich für die Gesundheit der Schweizer '
             + u'Bevölkerung und für die Entwicklung der nationalen '
@@ -61,7 +61,7 @@ class FOPHHarvester(HarvesterBase):
         'fr': {
             'name': u'Office fédéral de la santé publique OFSP',
             'description':
-            u"L'Office fédéral de la santé publique (OFSP) fait partie du "
+            u"Fait partie du "
             + u"Département fédéral de l'intérieur. De concert avec les "
             + u"cantons, il assume la responsabilité des domaines touchant "
             + u"à la santé publique ainsi que la mise en œuvre de la "
@@ -72,7 +72,7 @@ class FOPHHarvester(HarvesterBase):
         'it': {
             'name': u'Ufficio federale della sanità pubblica UFSP',
             'description':
-            u"L'Ufficio federale della sanità pubblica (UFSP) è incorporato "
+            u"Incorporato "
             + u"nel Dipartimento federale dell'interno. Unitamente ai "
             + u"Cantoni, è responsabile della salute della popolazione "
             + u"svizzera e dello sviluppo della politica nazionale in "
@@ -84,7 +84,7 @@ class FOPHHarvester(HarvesterBase):
         'en': {
             'name': u'Federal Office of Public Health FOPH',
             'description':
-            u"The Federal Office of Public Health (FOPH) is part of the "
+            u"Part of the "
             + u"Federal Department of Home Affairs. Along with the cantons "
             + u"it is responsible for public health in Switzerland and for "
             + u"developing national health policy. As the national health "
