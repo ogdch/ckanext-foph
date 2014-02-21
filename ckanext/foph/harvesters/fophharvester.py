@@ -56,7 +56,7 @@ class FOPHHarvester(HarvesterBase):
             + u'Behörde die Schweiz in Gesundheitsbelangen in '
             + u'internationalen Organisationen und gegenüber anderen '
             + u'Staaten.',
-            'website': u'http://www.bar.admin.ch/'
+            'website': u'http://www.bag.admin.ch'
         },
         'fr': {
             'name': u'Office fédéral de la santé publique OFSP',
